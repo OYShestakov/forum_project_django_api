@@ -1,0 +1,13 @@
+{% extends 'index.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <h1>Authorization page</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <br>
+        <button class="btn btn-primary">Log in</button>
+        <a class="btn btn-info" href="{% url 'index' %}">Back</a>
+    </form>
+{% endblock %}
