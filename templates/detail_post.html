@@ -4,8 +4,10 @@
     <h1>Detail post</h1>
     <br>
     <a class="btn btn-outline-info" href="{% url 'index' %}">Back</a>
-    <a href="{% url 'update_post' post.pk %}" class="btn btn-outline-primary">Edit</a>
-    <a href="{% url 'delete_post' post.pk %}" class="btn btn-outline-danger">Delete</a>
+    {% if user.is_superuser or user.is_staff %}
+        <a href="{% url 'update_post' post.pk %}" class="btn btn-outline-primary">Edit</a>
+        <a href="{% url 'delete_post' post.pk %}" class="btn btn-outline-danger">Delete</a>
+    {% endif %}
     <hr>
     {% if post.image %}
         <img src="{{ post.image.url }}" width="260">

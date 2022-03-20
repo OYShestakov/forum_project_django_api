@@ -1,22 +1,25 @@
-from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.views import generic
 from service.models import Post, Comment
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from service.forms import PostForm, CommentForm, UserRegisterForm
 from django.urls import reverse_lazy
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
+
 
 def index(request):
     return render(request, 'index.html')
 
-@login_required()
+
 def about(request):
     return render(request, 'about.html')
 
-class RegisterForm(CreateView):
+
+class RegisterForm(SuccessMessageMixin, CreateView):
     form_class = UserRegisterForm
+    success_message = '%(username)s was created succesfully'
     template_name = 'register.html'
     success_url = reverse_lazy('login')
 
@@ -32,18 +35,39 @@ class DetailPostView(DetailView):
     template_name = 'detail_post.html'
 
 
-class CreatePostView(LoginRequiredMixin, CreateView):
+# class CreatePostView(PermissionRequiredMixin, CreateView):
+#     permission_required = 'service.add_post'
+#     model = Post
+#     template_name = 'create_post.html'
+#     form_class = PostForm
+
+@login_required
+@permission_required('service.add_post')
+def create_post(request):
+    form = PostForm()
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            title = form.cleaned_data.get('title')
+            if title != "POST":
+                messages.error(request, 'Something went wrong')
+                return redirect('index')
+            # id = form.cleaned_data.get('pk')
+            messages.success(request, f"Post {title} was created succesfully")
+            return redirect('index')
+    return render(request, 'create_post.html', {'form':form})
+
+
+class UpdatePostView(PermissionRequiredMixin, UpdateView):
+    permission_required = 'service.change_post'
     model = Post
     template_name = 'create_post.html'
     form_class = PostForm
 
-class UpdatePostView(LoginRequiredMixin, UpdateView):
-    model = Post
-    template_name = 'create_post.html'
-    form_class = PostForm
 
-
-class DeletePostView(LoginRequiredMixin, DeleteView):
+class DeletePostView(PermissionRequiredMixin, DeleteView):
+    permission_required = 'service.delete_post'
     model = Post
     template_name = 'delete_post.html'
     success_url = reverse_lazy('index')

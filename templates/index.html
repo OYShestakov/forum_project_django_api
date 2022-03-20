@@ -12,16 +12,32 @@
     <div class="container">
         {% block content %}
             <h1>Forum</h1>
-
-        <a href="{%url 'create_post' %}" class="btn btn-primary block">Create New Post</a>
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.level == DEFAULT_MESSAGE_LEVEL.ERROR %}
+                    <div class="alert alert-danger" role="alert">
+                    {{ message }}
+                </div>
+                {% else %}
+                    <div class="alert alert-{{ message.tags }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if user.is_superuser or user.is_staff %}
+            <a href="{%url 'create_post' %}" class="btn btn-primary block">Create New Post</a>
+        {% endif %}
         <table class="table table-striped">
           <thead>
             <tr>
               <th scope="col">Title</th>
               <th scope="col">Description</th>
               <th scope="col">Created at</th>
-              <th scope="col">Edit</th>
-              <th scope="col">Delete</th>
+                {% if user.is_superuser or user.is_staff %}
+                  <th scope="col">Edit</th>
+                  <th scope="col">Delete</th>
+                {% endif %}
             </tr>
           </thead>
           <tbody>
@@ -31,8 +47,10 @@
                       <td> <a href="{% url 'detail_post' post.pk %}">{{ post.title }}</a></td>
                       <td>{{ post.description }}</td>
                       <th scope="row">{{ post.created_at }}</th>
-                      <td><a href="{% url 'update_post' post.pk %}" class="btn btn-outline-primary">Edit</a></td>
-                      <td><a href="{% url 'delete_post' post.pk %}" class="btn btn-outline-danger">Delete</a></td>
+                        {% if user.is_superuser or user.is_staff %}
+                          <td><a href="{% url 'update_post' post.pk %}" class="btn btn-outline-primary">Edit</a></td>
+                          <td><a href="{% url 'delete_post' post.pk %}" class="btn btn-outline-danger">Delete</a></td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 {% else %}
