@@ -7,7 +7,11 @@
         {% csrf_token %}
         {{ form|crispy }}
         <br>
-        <button class="btn btn-primary">Log in</button>
-        <a class="btn btn-info" href="{% url 'index' %}">Back</a>
+        <button class="btn btn-outline-primary">Log in</button>
+        <a class="btn btn-outline-info" href="{% url 'index' %}">Back</a>
     </form>
+    <hr>
+    <small class="text-muted">
+        Not registered yet? <a href="{% url 'register' %}">Sing up</a>
+    </small>
 {% endblock %}

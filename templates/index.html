@@ -31,8 +31,8 @@
                       <td> <a href="{% url 'detail_post' post.pk %}">{{ post.title }}</a></td>
                       <td>{{ post.description }}</td>
                       <th scope="row">{{ post.created_at }}</th>
-                      <td><a href="{% url 'update_post' post.pk %}" class="btn btn-primary">Edit</a></td>
-                      <td><a href="{% url 'delete_post' post.pk %}" class="btn btn-danger">Delete</a></td>
+                      <td><a href="{% url 'update_post' post.pk %}" class="btn btn-outline-primary">Edit</a></td>
+                      <td><a href="{% url 'delete_post' post.pk %}" class="btn btn-outline-danger">Delete</a></td>
                     </tr>
                     {% endfor %}
                 {% else %}

@@ -3,9 +3,9 @@
 {% block content %}
     <h1>Detail post</h1>
     <br>
-    <a class="btn btn-info" href="{% url 'index' %}">Back</a>
-    <a href="{% url 'update_post' post.pk %}" class="btn btn-primary">Edit</a>
-    <a href="{% url 'delete_post' post.pk %}" class="btn btn-danger">Delete</a>
+    <a class="btn btn-outline-info" href="{% url 'index' %}">Back</a>
+    <a href="{% url 'update_post' post.pk %}" class="btn btn-outline-primary">Edit</a>
+    <a href="{% url 'delete_post' post.pk %}" class="btn btn-outline-danger">Delete</a>
     <hr>
     {% if post.image %}
         <img src="{{ post.image.url }}" width="260">
@@ -14,14 +14,17 @@
     <strong> {{ post.title }}</strong>
     <p>{{ post.description }}</p>
     <p>{{ post.created_at }}</p>
-    <a href="{% url 'add_comment' post.pk %}" class="btn btn-info">Add comment</a>
+    <a href="{% url 'add_comment' post.pk %}" class="btn btn-outline-info">Add comment</a>
     <hr>
     {% if post.comments.all %}
         <h4>Comments</h4>
-        {% for comment in post.comments.all %}
-            <p> {{ comment.created_at }} : {{ comment.description }}</p>
-            <hr>
-        {% endfor %}
+        <div class="container">
+            {% for comment in post.comments.all %}
+                <p> {{ comment.description }} </p>
+                <small class="text-muted"> {{ comment.created_at }}</small>
+                <hr>
+            {% endfor %}
+        </div>
     {% endif %}
 
 {% endblock %}
