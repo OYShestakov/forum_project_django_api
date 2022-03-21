@@ -1,12 +1,19 @@
+import csv
+import datetime
+
 from django.shortcuts import render, redirect
+from django.conf import settings
 from service.models import Post, Comment
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from service.forms import PostForm, CommentForm, UserRegisterForm
+from service.forms import PostForm, CommentForm, UserRegisterForm, MessageForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.mail import send_mail
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponse
 
 
 def index(request):
@@ -14,7 +21,19 @@ def index(request):
 
 
 def about(request):
-    return render(request, 'about.html')
+    form = MessageForm()
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data.get('title')
+            body = form.cleaned_data.get('body')
+            try:
+                send_mail(subject, body, settings.EMAIL_HOST_USER, [email_reciever], fail_silently=False)
+                form.save()
+            except Exception as err:
+                print(str(err))
+            return redirect('about')
+    return render(request, "about.html", {'form':form})
 
 
 class RegisterForm(SuccessMessageMixin, CreateView):
@@ -81,3 +100,23 @@ class AddCommentView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.post_id = self.kwargs['pk']
         return super().form_valid(form)
+
+
+def upload(request):
+    context = {}
+    if request.method == 'POST':
+        uploaded_file = request.FILES.get('file')
+        file = FileSystemStorage()
+        name = file.save(uploaded_file.name, uploaded_file)
+        context['url'] = file.url(name)
+    return render(request, 'upload.html', context)
+
+def download(request):
+    response = HttpResponse(content_type='text/csv')
+    writer = csv.writer(response)
+    writer.writerow(['Title', 'Description', 'Created_at'])
+    for row in Post.objects.all().values_list('title', 'description', 'created_at'):
+        writer.writerow(row)
+    filename = str(datetime.datetime.now()) + 'posts.csv'
+    response['Content-Disposition'] = f"attachment; filename={filename}"
+    return response

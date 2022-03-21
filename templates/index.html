@@ -26,7 +26,9 @@
             {% endfor %}
         {% endif %}
         {% if user.is_superuser or user.is_staff %}
-            <a href="{%url 'create_post' %}" class="btn btn-primary block">Create New Post</a>
+            <a href="{%url 'create_post' %}" class="btn btn-primary">Create New Post</a>
+            <a href="{%url 'upload' %}" class="btn btn-secondary">Upload Files</a>
+            <a href="{%url 'download' %}" class="btn btn-info">Download Posts</a>
         {% endif %}
         <table class="table table-striped">
           <thead>
